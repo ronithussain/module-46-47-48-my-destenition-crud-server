@@ -29,6 +29,7 @@ const mongoClient = await connectToMongoDB();
 
 const db = mongoClient.db("wanderlastDB");
 const destinationCollection = db.collection("destination");
+const bookingCollection = db.collection("bookings");
 
 // add-destination:post-api
 app.post("/add-destination", async (req, res) => {
@@ -65,6 +66,37 @@ app.patch("/all-destination/:id", async (req, res) => {
       message: "Failed to update destination!",
     });
   }
+});
+// delete destination api:
+app.delete("/all-destination/:id", async (req, res) => {
+  const id = req.params.id;
+  const result = await destinationCollection.deleteOne({
+    _id: new ObjectId(id),
+  });
+  res.send(result);
+
+  console.log(result, "delete for server");
+});
+
+// booking collection api:
+// post api:
+app.post("/bookings", async (req, res) => {
+  const data = req.body;
+  const result = await bookingCollection.insertOne(data);
+  res.send(result);
+});
+// my-bookinsg get api:
+app.get("/my-bookings/:email", async (req, res) => {
+  const email = req.params.email;
+  const result = await bookingCollection.find({ email: email }).toArray();
+  res.send(result);
+  // console.log(result);
+});
+// delete my-booking data api:
+app.delete("/my-bookings/:id", async (req, res) => {
+  const { id } = req.params;
+  const result = await bookingCollection.deleteOne({ _id: id }); // objectId korlam na causes mongodb te jodi objectId thake tahole objectId diye access korte hobe r string akare thakle string diye access korte hobe;
+  res.send(result)
 });
 
 app.listen(PORT, () => {
